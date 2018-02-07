@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+
+	<link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../css/find-car.css">
+    <style  type="text/css">  
+	    [v-cloak] {  
+	        display: none;  
+	    }  
+	</style> 
+
+</head>
+<body>
+	<div class="main1" id="findcar" v-cloak>
+		<div class="header">
+			<span class="back" @click="goBack()"><img src="../image/back.png"></span>
+            <span>找车</span>
+            <span class="r-complain" @click="goComplain()">
+            	投诉反馈
+            </span>
+		</div>
+		
+       <div class="space"  v-cloak>
+			<div class="left">
+	           <ul class="list-brand">
+	           	<!-- <li class="active"><img src="../image/icon-logo2.png"> 丰田 </li> -->
+	           	<li v-for="(brand,index) in brands" v-bind:class="{'active':index==curIndex}" @click="getType(index)"><img :src=brand.imgsrc> {{brand.brandName}} </li>
+	           	
+	           </ul>
+		   	</div>
+		   	<div class="right">
+		       <div class="list-type">
+		       	  <dl v-for="(list,index) in lists" @click="goPage1(list,index)">
+		       	  	<dt><img :src="list.imgsrc"></dt>
+		       	  	<dd>{{list.typeName}}</dd>
+		       	  </dl>
+		       </div>
+		   	</div>
+	  	</div> 
+	  	<div id="footer">
+            <!-- <h5>Copyright &copy;<span id="year"></span> </h5> -->
+            <ul class="footer-nav">
+                <li @click="goIndex()">
+                    <img src="../image/footer-icon1.png">
+                    <span>首页</span>
+                </li>
+                <li @click="goFind()">
+                    <img src="../image/icon-find.png">
+                    <span>找车</span>
+                </li>
+                <li  @click="goRealeaseCar()">
+                    <img src="../image/icon-public.png" class="public">
+                    <span>发车</span>
+                </li>
+                <li @click="goManage()">
+                    <img src="../image/icon-manage.png">
+                    <span>车源管理</span>
+                </li>
+                <li @click="goMyhome()">
+                    <img src="../image/icon-mine.png">
+                    <span>我</span>
+                </li>
+            </ul>
+        </div>
+	</div>
+	  
+</body>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
+
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+
+    apiready = function(){
+
+    	$vue = new Vue({
+    		el:'#findcar',
+    		data:{
+    			lists:[],
+    			brands:[],
+    			curIndex:0,
+    			chooseBrandId:'',
+    			typeName:''
+			},
+			mounted:function(){
+				this.showList()
+				this.showBrands()
+			},
+			updated: function(){
+				this.chooseBrandName = this.brands[0]
+			},
+			methods:{
+				showList: function(){
+					// this.$http.get('http://localhost:3001/typelist?brandId='+this.chooseBrandId).then(
+					this.$http.post('http://172.10.1.14:3001/typelist',{'brandId':this.chooseBrandId}).then(
+						function(res){
+						this.lists = res.data.list
+						console.log('typeList',this.lists)
+						// console.log('parame', parame)
+					},function(msg){
+						console.log(msg)
+					})
+				},
+				showBrands:function(){
+					// this.$http.get('http://localhost:3001/branda').then(function(res){
+					this.$http.post('http://172.10.1.14:3001/branda').then(function(res){
+						this.brands = res.data.list
+						console.log('brand',this.brands[0])
+					},function(msg){
+						console.log(msg)
+					})
+				},
+				getType:function(index){
+					this.curIndex = index
+					
+					console.log(this.curIndex)
+					this.chooseBrandId = this.brands[this.curIndex].brandId
+					console.log(this.chooseBrandId)
+					this.showList()
+				},
+				// goPage:function(typeList,index){
+				// 	console.log(typeList.typeName)
+				// 	// location.href="./sell.html?typeName="+typeList.typeName
+				// 	api.openWin({
+				// 		name:'sell',
+				// 		url:'./sell.html'
+				// 	})
+				// },
+				goPage1:function(list,index){
+					api.openWin({
+						name:'main2',
+						url: './main2.html',
+						pageParam:{
+							seriesId: list.seriesId
+						}
+					})
+				},
+				goComplain: function(){
+					api.openWin({
+						name: 'complain',
+						url:'./complain.html'
+					})
+				},
+				goBack: function(){
+					api.closeFrame({
+						name:'findcar'
+					})
+				},
+				goIndex: function () {
+	                api.openFrame({
+	                    name: 'index',
+	                    url:'../index.html'
+	                });
+	            },
+	            goFind: function () {
+	                api.openFrame({
+	                    name: 'findcar',
+	                    url: './find-car.html'
+	                });
+	            },
+	            goSkip: function () {
+	                api.openFrame({
+	                    name: 'product-detail',
+	                    url: './product-detail.html'
+	                });
+	            },
+	            goManage: function(){
+	                api.openFrame({
+	                    name:'sell',
+	                    url:'./sell.html'
+	                })
+	            },
+	            goMyhome: function(){
+	                api.openFrame({
+	                    name:'myhome',
+	                    url:'./my/myhome.html'
+	                })
+	            },
+	            goRealeaseCar: function(){
+                    api.openWin({
+                        name: 'realeaseCar',
+                        url:'./realease-car/realease-car.html'
+                    })
+	            }
+    		}
+    	})
+			
+			
+    };
+</script>
+</html>

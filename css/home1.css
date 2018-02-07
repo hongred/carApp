@@ -1,0 +1,13 @@
+#header{
+	clear:both;
+	overflow: hidden;
+	margin-top:0;
+}
+.home-head1{
+	float:left;
+	width:20%;
+}
+.home-head2{
+	float:left;
+	width:80%;
+}

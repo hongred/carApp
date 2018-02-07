@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+
+	<link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <link rel="stylesheet" type="text/css" href="../css/find-car.css">
+    <style  type="text/css">  
+	    [v-cloak] {  
+	        display: none;  
+	    }  
+	</style> 
+	<title>找车</title>
+</head>
+<body>
+	<div id="home">
+		<header class="header">
+            <div class="choseArea">
+                <img src="./image/arrow-down-white.png" alt="">
+            </div>
+            <div class="searchInput">
+                <input type="text" maxlength="50" placeholder="大路网平行进口车型">
+                <img src="./image/search_icon.png" alt="" class="search_icon">
+            </div>
+        </header>
+        <div id="home" class="flex-con mt10">
+            <div class="banner">
+                <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <img src="./image/banner.png" alt="">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./image/banner.png" alt="">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./image/banner.png" alt="">
+                        </div>
+                        <div class="swiper-slide">
+                            <img src="./image/banner.png" alt="">
+                        </div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+                
+            </div>
+            <div class="sub-menu">
+                <dl>
+                    <dt> <img src="./image/shop.png" alt=""></dt>
+                    <dd>团购</dd>
+                </dl>
+                <dl>
+                    <dt> <img src="./image/card.png" alt=""></dt>
+                    <dd>赏金券</dd>
+                </dl>
+                <dl>
+                    <dt> <img src="./image/car.png" alt=""></dt>
+                    <dd>物流</dd>
+                </dl>
+                <dl>
+                    <dt> <img src="./image/money.png" alt=""></dt>
+                    <dd>金融</dd>
+                </dl>
+            </div>
+            <!-- news新闻 -->
+            <div class="news mt10">
+                <div class="tip"><img src="./image/tip.png" alt=""></div>
+                <marquee direction="left" alternate scrolldelay="100" loop="1" class="marguee">
+                    <ul>
+                        <li>1、大路网设立100亿平行车专项基金，打造中国最大平行</li>
+                        <li>2、大路网设立100亿平行车专项基金，打造中国最大平行</li>
+                        <li>3、大路网设立100亿平行车专项基金，打造中国最大平行</li>
+                    </ul>
+                </marquee>
+                <div class="mores">更多</div>
+            </div>
+            <!-- 热销品牌 -->
+            <div class="hot brand mt10">
+                <div class="titles">
+                    <span class="fire">热销品牌</span>
+                    <span class="w25"><img src="./image/arrow-right-gray.png" alt=""></span>
+                </div>
+                <div class="brand-list">
+                    <dl v-if="brand.length>0" v-for="items in brand">
+                        <dt> <img :src="items.logo" alt=""> </dt>
+                        <dd>{{items.name}}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 热门推荐 -->
+            <div class="hot recommend mt10">
+                <div class="titles">
+                    <span class="remond">热门推荐</span>
+                    <span class="w25"><img src="./image/arrow-right-gray.png" alt=""></span>
+                </div>
+                <div class="recommend-list" v-if="hotCar.car">
+                    <dl v-for="items in hotCar.car[0].models">
+                        <dt> <img :src="items.img" alt=""> </dt>
+                        <dd>
+                            <p>{{items.edition}} {{hotCar.car[0].name}} {{items.car}} {{items.name}} {{items.displacement}} {{items.year}}款 {{items.seat}}座 {{items.chooseColor}}</p>
+                            <p class="address">{{items.address}}</p>
+                            <p class="price">¥{{items.price}}万</p>
+                        </dd>
+                    </dl>
+                    <dl v-for="item in hotCar.car[3].models">
+                        <dt> <img :src="item.img" alt=""> </dt>
+                        <dd>
+                            <p>{{item.edition}} {{hotCar.car[3].name}} {{item.car}} {{item.name}} {{item.displacement}} {{item.year}}款 {{item.seat}}座 {{item.chooseColor}}</p>
+                            <p class="address">{{item.address}}</p>
+                            <p class="price">¥{{item.price}}万</p>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="down">到底了！</div>
+        </div>
+	 </div> 
+</body>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
+
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+
+    apiready = function(){
+
+    	$vue = new Vue({
+    		el:'#findcar',
+    		data:{
+    			lists:[],
+    			brands:[],
+    			curIndex:0,
+    			chooseBrandId:'',
+    			typeName:''
+			},
+			mounted:function(){
+				this.showList()
+				this.showBrands()
+			},
+			updated: function(){
+				this.chooseBrandName = this.brands[0]
+			},
+			methods:{
+				showList: function(){
+					// this.$http.get('http://localhost:3001/typelist?brandId='+this.chooseBrandId).then(
+					this.$http.post('http://172.10.1.14:3001/typelist',{'brandId':this.chooseBrandId}).then(
+						function(res){
+						this.lists = res.data.list
+						console.log('typeList',this.lists)
+						// console.log('parame', parame)
+					},function(msg){
+						console.log(msg)
+					})
+				},
+				showBrands:function(){
+					// this.$http.get('http://localhost:3001/branda').then(function(res){
+					this.$http.post('http://172.10.1.14:3001/branda').then(function(res){
+						this.brands = res.data.list
+						console.log('brand',this.brands[0])
+					},function(msg){
+						console.log(msg)
+					})
+				},
+				getType:function(index){
+					this.curIndex = index
+					
+					console.log(this.curIndex)
+					this.chooseBrandId = this.brands[this.curIndex].brandId
+					console.log(this.chooseBrandId)
+					this.showList()
+				},
+				// goPage:function(typeList,index){
+				// 	console.log(typeList.typeName)
+				// 	// location.href="./sell.html?typeName="+typeList.typeName
+				// 	api.openWin({
+				// 		name:'sell',
+				// 		url:'./sell.html'
+				// 	})
+				// },
+				goPage1:function(list,index){
+					api.openWin({
+						name:'main2',
+						url: './main2.html',
+						pageParam:{
+							seriesId: list.seriesId
+						}
+					})
+				},
+				goComplain: function(){
+					api.openWin({
+						name: 'complain',
+						url:'./complain.html'
+					})
+				},
+				goBack: function(){
+					api.closeFrame({
+						name:'findcar'
+					})
+				},
+				goIndex: function () {
+	                api.openFrame({
+	                    name: 'index',
+	                    url:'../index.html'
+	                });
+	            },
+	            goFind: function () {
+	                api.openFrame({
+	                    name: 'findcar',
+	                    url: './find-car.html'
+	                });
+	            },
+	            goSkip: function () {
+	                api.openFrame({
+	                    name: 'product-detail',
+	                    url: './product-detail.html'
+	                });
+	            },
+	            goManage: function(){
+	                api.openFrame({
+	                    name:'sell',
+	                    url:'./sell.html'
+	                })
+	            },
+	            goMyhome: function(){
+	                api.openFrame({
+	                    name:'myhome',
+	                    url:'./my/myhome.html'
+	                })
+	            }
+    		}
+    	})
+			
+			
+    };
+</script>
+</html>

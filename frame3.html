@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="../css/sell.css"> 
+    <style  type="text/css">  
+	    [v-cloak] {  
+	        display: none;  
+	    }  
+	</style>
+    <title>车源管理</title>
+
+</head>
+<body >
+	<div id="sellmain" class="sell" v-cloak>
+		<div class="fiexed">
+			<div class="sell-head-main">
+				<ul class="sell-head">
+					<li :class="{'on': selectIndex==0}" @click="goodsFilter(0,0)"><span>出售中</span></li>
+					<li :class="{'on': selectIndex==1}" @click="goodsFilter(1,1)"><span>已下架</span></li>
+				</ul>
+			</div>
+			<div class="btn-yellow" @click="goRealeaseCar()"><img src=""> 发布车源</div>
+			<p class="pub-text">车源信息（{{dataNum}}）</p>
+		</div>
+		<div class="pub-cont">
+			
+			<div class="pub-list">
+				<dl v-for="list in filterList" @click="goDetail(list.goodsId)">
+					<dt>
+						<p class="pub-tit">[{{list.carType}}] {{list.carSeries}} {{list.pailiang}}l {{list.kuan}} {{list.zuo}} {{list.color}}</p> 
+						<p class="pub-money">{{list.money}}万</p>
+					</dt>
+					<dd>
+						<div class="pub-seat">
+							{{list.port}} | {{list.haiwai}} | {{list.color}} | {{list.rongliang}}
+						</div>
+						<p class="pub-date">{{list.date}}</p>
+					</dd>
+				</dl>
+				
+			</div>
+		</div>
+		
+	   <div id="footer">
+            <!-- <h5>Copyright &copy;<span id="year"></span> </h5> -->
+            <ul class="footer-nav">
+                <li @click="goIndex()">
+                    <img src="../image/footer-icon1.png">
+                    <span>首页</span>
+                </li>
+                <li @click="goFind()">
+                    <img src="../image/icon-find.png">
+                    <span>找车</span>
+                </li>
+                <li>
+                    <img src="../image/icon-public.png" class="public">
+                    <span>发车</span>
+                </li>
+                <li @click="goManage()">
+                    <img src="../image/icon-manage.png">
+                    <span>车源管理</span>
+                </li>
+                <li @click="goMyhome()">
+                    <img src="../image/icon-mine.png">
+                    <span>我</span>
+                </li>
+            </ul>
+        </div>
+	</div>
+	  
+</body>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
+
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+	// function goPage(){
+	// 	$api.openWin({
+	// 		name:'aa',
+	// 		url:'./aa.html'
+	// 	})
+	// }
+    apiready = function(){
+
+ 	$vue = new Vue({
+ 		el:'#sellmain',
+ 		data:{
+ 			selectIndex:0,
+ 			filterList:'',
+ 			filterId:'0',
+ 			dataNum:'0'
+ 		},
+ 		mounted: function(){
+ 			let _this = this;
+ 			this.filterM();
+ 			api.addEventListener({
+ 				name:'delete'
+ 			},function(ret){
+ 				if(ret){
+ 					_this.filterM();
+ 				}
+ 				
+ 			})
+ 		},
+ 		methods:{
+ 			//获取数据
+ 			filterM:function(){
+ 				this.$http.post('http:172.10.1.14:3001/carManager',{filterId:this.filterId}).then(function(res){
+ 					console.log(res.data)
+ 					this.dataNum=res.data.length
+ 					this.filterList = res.data
+ 				})
+ 			},
+ 			//选择出售中，下架
+ 			goodsFilter: function (index, filterId) {
+ 				this.selectIndex = index;
+ 				this.filterId = filterId
+ 				this.filterM()
+ 				
+ 			},
+ 			//跳转到详情
+ 			goDetail: function(id){
+ 				api.openWin({
+ 					name:'seeDetail',
+ 					url:'./sell-detail.html',
+ 					pageParam:{
+ 						goodsId: id
+ 					}
+ 				})
+ 			},
+ 			//发布车源
+ 			goRealeaseCar: function(){
+ 				api.openWin({
+ 					name: 'realeasecar',
+ 					url: './realease-car/realease-car.html'
+ 				})
+ 			},
+ 			goIndex: function () {
+                api.openFrame({
+                    name: 'index',
+                    url:'../index.html'
+                });
+            },
+            goFind: function () {
+                api.openFrame({
+                    name: 'findcar',
+                    url: './find-car.html'
+                });
+            },
+            goStart: function () {
+
+            },
+            goSkip: function () {
+                api.openFrame({
+                    name: 'product-detail',
+                    url: './product-detail.html'
+                });
+            },
+            goMy: function () {
+
+            },
+            goManage: function(){
+                api.openFrame({
+                    name:'sell',
+                    url:'./sell.html'
+                })
+            },
+            goMyhome: function(){
+                api.openFrame({
+                    name:'myhome',
+                    url:'./my/myhome.html'
+                })
+            }
+
+ 		}
+ 	})
+    	
+			
+    };
+</script>
+</html>
